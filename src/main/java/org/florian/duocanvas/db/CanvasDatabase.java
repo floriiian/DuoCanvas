@@ -40,7 +40,8 @@ public class CanvasDatabase {
     public static void addCanvasToDatabase(CanvasSession session) throws IOException {
 
         String canvasCode = session.canvasCode;
-        byte[] canvasData = getCanvasDataAsBytes(session);
+        byte[] canvasData = getCanvasDataAsBytes(session); // TODO !
+
 
         try {
             String sql = "INSERT INTO canvasStorage (canvas_code, canvas_data) VALUES (?, ?)";
@@ -75,6 +76,9 @@ public class CanvasDatabase {
     public static void backupCanvasData() throws IOException {
 
         for (CanvasSession session : Main.ACTIVE_CANVAS_SESSIONS.values()) {
+
+            LOGGER.debug(session.canvasCode);
+
             try {
                 String canvasCode = session.canvasCode;
                 byte[] canvasData = getCanvasDataAsBytes(session);
@@ -97,7 +101,7 @@ public class CanvasDatabase {
                     LOGGER.debug("{} has been backed up.", canvasCode);
                 } else {
                     LOGGER.debug("{} is no longer backed up.", canvasCode);
-                    Main.ACTIVE_CANVAS_SESSIONS.remove(session);
+                    Main.ACTIVE_CANVAS_SESSIONS.remove(canvasCode);
                 }
                 preparedResults.close();
             } catch (Exception e) {
@@ -111,7 +115,7 @@ public class CanvasDatabase {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 
-        objectOutputStream.writeObject(session);
+        objectOutputStream.writeObject(session); // TODO: <--!
         objectOutputStream.flush();
         objectOutputStream.close();
 

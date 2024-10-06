@@ -140,6 +140,7 @@ public class Main {
         CanvasSession newCanvasSession = new CanvasSession(canvasCode, creatorUUID);
 
         ACTIVE_CANVAS_SESSIONS.put(canvasCode, newCanvasSession);
+
         CanvasDatabase.addCanvasToDatabase(newCanvasSession); // TODO:  NotSerializableException
         return canvasCode;
     }

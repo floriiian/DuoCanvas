@@ -17,17 +17,18 @@ import org.florian.duocanvas.json.responses.CanvasResponse;
 import org.florian.duocanvas.json.responses.DrawResponse;
 import org.florian.duocanvas.json.responses.DrawUpdate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CanvasSession {
+public class CanvasSession implements Serializable {
     public String canvasCode;
     private final Set<String> participants = new HashSet<>();
     public CanvasPixel[][] canvasData = new CanvasPixel[1000][1000];
 
-    private final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final Logger LOGGER = LogManager.getLogger();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public CanvasSession(String sessionCode, String creatorUUID) {
         this.canvasCode = sessionCode;
