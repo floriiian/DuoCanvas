@@ -36,7 +36,6 @@ public class CanvasSession implements Serializable {
     }
 
     public void addPixelToCanvas(int x, int y, String color, String participantUUID) {
-
         canvasData[x][y] = new CanvasPixel(participantUUID, x, y, color);
     }
 
@@ -53,18 +52,19 @@ public class CanvasSession implements Serializable {
     }
 
     public void handlePacket(WsMessageContext ctx, Object decodedJson) throws JsonProcessingException {
-
         if (decodedJson instanceof CanvasRequest) {
             handleCanvasRequest(ctx);
-        }
-
-        if (decodedJson instanceof DrawRequest) {
+        } else if (decodedJson instanceof DrawRequest) {
             handleDrawRequest(ctx, (DrawRequest) decodedJson);
+        } else {
+            LOGGER.debug(decodedJson.toString());
         }
     }
 
     private void handleCanvasRequest(WsMessageContext ctx) throws JsonProcessingException {
         try {
+            LOGGER.debug("CAUSED");
+
             this.addParticipant(ctx.sessionId());
             ArrayList<CanvasPixel> canvasPixels = new ArrayList<>();
 
@@ -88,7 +88,6 @@ public class CanvasSession implements Serializable {
     }
 
     private void handleDrawRequest(WsMessageContext ctx, DrawRequest decodedJson) throws JsonProcessingException {
-
         int x = decodedJson.x();
         int y = decodedJson.y();
         String color = decodedJson.color();

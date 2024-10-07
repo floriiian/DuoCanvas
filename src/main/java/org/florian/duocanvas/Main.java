@@ -14,6 +14,7 @@ import org.florian.duocanvas.json.responses.SessionResponse;
 import org.florian.duocanvas.session.CanvasSession;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,21 +35,18 @@ public class Main {
     public static final Map<String, CanvasSession> ACTIVE_CANVAS_SESSIONS = new HashMap<>();
 
     public static void main() {
-
         REQUEST_HANDLERS.put(RequestType.GENERATE_CANVAS, SessionResponse.class);
         REQUEST_HANDLERS.put(RequestType.LOAD_CANVAS, CanvasRequest.class);
         REQUEST_HANDLERS.put(RequestType.DRAW_PIXEL, DrawRequest.class);
 
-
         if (!CanvasDatabase.initiateDatabase()) {
             return;
         }
+
         ArrayList<String> canvasCodes = CanvasDatabase.getCanvasCodesFromDatabase();
         if (canvasCodes != null) {
             canvasCodes.forEach(canvasCode -> {
-
                 byte[] canvasBytes = CanvasDatabase.getCanvasBytesFromDatabase(canvasCode);
-
                 try {
                     CanvasSession sessionBackup = CanvasDatabase.getCanvasDataFromBytes(canvasBytes);
                     ACTIVE_CANVAS_SESSIONS.put(sessionBackup.canvasCode, sessionBackup);
@@ -62,7 +60,6 @@ public class Main {
         Javalin app = Javalin.create().start(7777);
 
         ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-
         service.scheduleWithFixedDelay(() -> {
             try {
                 CanvasDatabase.backupCanvasData();
@@ -71,29 +68,20 @@ public class Main {
             }
         }, BACKUP_DELAY, BACKUP_DELAY, TimeUnit.SECONDS);
 
-
         app.ws("/canvas", ws -> {
-
             ws.onConnect(USERS::add);
-
             ws.onMessage(ctx -> {
-
                 String requestedData = ctx.message();
                 JsonNode jsonData = OBJECT_MAPPER.readTree(requestedData);
-
                 if (jsonData.isEmpty()) {
                     return;
                 }
-
-                LOGGER.debug(jsonData);
-
                 String requestType = jsonData.get("requestType").asText();
                 String canvasCode = jsonData.get("canvasCode").asText();
 
                 if (requestType.equals("none") && canvasCode.equals("session")) {
                     return;
                 }
-
                 switch (requestType) {
                     case "session":
                         ctx.send(OBJECT_MAPPER.writeValueAsString(new SessionResponse(
@@ -101,13 +89,15 @@ public class Main {
                         );
                         break;
                     case "canvas":
-                        ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(ctx,
-                                REQUEST_HANDLERS.get(RequestType.LOAD_CANVAS)
+                        ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(
+                                ctx,
+                                OBJECT_MAPPER.treeToValue(jsonData, REQUEST_HANDLERS.get(RequestType.LOAD_CANVAS))
                         );
                         break;
                     case "draw":
-                        ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(ctx,
-                                REQUEST_HANDLERS.get(RequestType.DRAW_PIXEL)
+                        ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(
+                                ctx,
+                                OBJECT_MAPPER.treeToValue(jsonData, REQUEST_HANDLERS.get(RequestType.DRAW_PIXEL))
                         );
                         break;
                 }
@@ -115,9 +105,7 @@ public class Main {
 
             ws.onClose(ctx -> {
                 for (CanvasSession session : ACTIVE_CANVAS_SESSIONS.values()) {
-
                     String participantUUID = ctx.sessionId();
-
                     if (session.getParticipants().contains(participantUUID)) {
                         session.removeParticipant(participantUUID);
                     }
@@ -128,20 +116,19 @@ public class Main {
     }
 
     private static String generateCanvasSession(String creatorUUID) throws IOException {
-
         RandomStringGenerator generator = new RandomStringGenerator.Builder().withinRange('A', 'Z').get();
         String canvasCode = "";
-
         boolean isUniqueCanvasCode = false;
+
         while (!isUniqueCanvasCode) {
             canvasCode = generator.generate(8);
             isUniqueCanvasCode = !ACTIVE_CANVAS_SESSIONS.containsKey(canvasCode);
         }
         CanvasSession newCanvasSession = new CanvasSession(canvasCode, creatorUUID);
-
         ACTIVE_CANVAS_SESSIONS.put(canvasCode, newCanvasSession);
+        CanvasDatabase.addCanvasToDatabase(newCanvasSession); //
 
-        CanvasDatabase.addCanvasToDatabase(newCanvasSession); // TODO:  NotSerializableException
+        LOGGER.debug("Saved: {}", canvasCode);
         return canvasCode;
     }
 }
