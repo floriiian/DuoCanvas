@@ -14,7 +14,7 @@ import org.florian.duocanvas.json.responses.SessionResponse;
 import org.florian.duocanvas.session.CanvasSession;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

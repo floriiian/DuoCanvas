@@ -17,6 +17,9 @@ import org.florian.duocanvas.json.responses.CanvasResponse;
 import org.florian.duocanvas.json.responses.DrawResponse;
 import org.florian.duocanvas.json.responses.DrawUpdate;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,8 +66,6 @@ public class CanvasSession implements Serializable {
 
     private void handleCanvasRequest(WsMessageContext ctx) throws JsonProcessingException {
         try {
-            LOGGER.debug("CAUSED");
-
             this.addParticipant(ctx.sessionId());
             ArrayList<CanvasPixel> canvasPixels = new ArrayList<>();
 
@@ -81,6 +82,9 @@ public class CanvasSession implements Serializable {
             );
 
             LOGGER.debug("Loaded Canvas for: {}", ctx.sessionId());
+
+            generateCanvasImage(); // TODO: For testing.
+
         } catch (JsonProcessingException e) {
             LOGGER.debug("Canvas request failed", e);
             ctx.send(OBJECT_MAPPER.writeValueAsString(false));
@@ -113,5 +117,30 @@ public class CanvasSession implements Serializable {
 
     private void cancelDrawResponse(WsMessageContext ctx) throws JsonProcessingException {
         ctx.send(OBJECT_MAPPER.writeValueAsString(new DrawResponse("drawResponse", false)));
+    }
+
+    private void generateCanvasImage() {
+        BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = image.createGraphics();
+
+        for (int j = 0; j < 1000; j++) {
+            for (int i = 0; i < 1000; i++) {
+                CanvasPixel currentPixel = canvasData[i][j];
+                Color color = Color.WHITE;
+
+                if (currentPixel != null) {
+                    String pixelColor = currentPixel.getColor();
+                    color = new Color(Integer.parseInt(pixelColor.replace("#", ""), 16));
+                }
+                g.setColor(color);
+                g.drawRect(i, j, 2, 2);
+            }
+        }
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frame.setSize(1000, 1000);
+        JLabel label = new JLabel(new ImageIcon(image));
+        frame.add(label);
+        frame.setVisible(true);
     }
 }
