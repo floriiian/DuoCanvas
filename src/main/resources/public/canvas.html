@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kill myself</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/footer.css">
+</head>
+<body>
+
+<div class="page-reveal">
+    <div class="element-3 element"></div>
+    <div class="element-1 element"></div>
+    <div class="element-2 element"></div>
+</div>
+
+<div id="coordinate_display">
+    <button id="place_button" onclick="showFooter()">
+        <span id="place_text">Place!</span>
+        <span id="xy_display">(0, 0)</span>
+    </button>
+</div>
+
+<img id="preloader_img" src="images/loading.gif" alt="Loading" style="width:96px;height:96px;">
+<div id="canvas-container">
+    <canvas id="canvas" height="1000" width="1000"></canvas>
+</div>
+<img id="selected_pixel" src="images/selected_pixel.png" alt="selectedPixel">
+
+<button id="exit-session-button" onclick="createNewSession()">
+    <img alt="" src="images/cancel.png">
+</button>
+
+<button id="image-button" onclick="sendImageRequest()">
+    <img alt="" src="images/screenshot.png">
+</button>
+
+<div class = "footer-container">
+    <div class="footer-background"></div>
+    <div class="footer-line"></div>
+        <div id="button-container">
+            <button onclick="showFooter(false)" id="pixel_cancel"><img alt="" src="images/cancel.png"></button>
+            <button onclick="sendDrawRequest(null, selectedColor, lastX, lastY);" id="pixel_confirmation"><img alt="" src="images/tick.png"></button>
+        </div>
+        <div class="container">
+            <div class="colorpicker">
+                <div id="picker"></div>
+            </div>
+            <div id="swatches" class="colorswatches">
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#dce0e2" style="background: #dce0e2"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#898d91" style="background: #898d91"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#000000" style="background: #000000"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#9f641c" style="background: #9f641c"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#f69bae" style="background: #f69bae"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#b941c4" style="background: #b941c4"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#7d109e" style="background: #7d109e"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#4af4f7" style="background: #4af4f7"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#2d90f3" style="background: #2d90f3"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#1748a5" style="background: #1748a5"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#7df752" style="background: #7df752"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#00a563" style="background: #00a563"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#f7df2e" style="background: #f7df2e"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#f6ab00" style="background: #f6ab00"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#f73e00" style="background: #f73e00"></div>
+                </label>
+            </div>
+        </div>
+</div>
+
+
+
+<script src="script.js" defer></script>
+</body>
+</html>

@@ -98,9 +98,7 @@ public class CanvasDatabase {
                     preparedStmt.setString(2, canvasCode);
                     preparedStmt.executeUpdate();
                     preparedStmt.close();
-                    LOGGER.debug("{} has been backed up.", canvasCode);
                 } else {
-                    LOGGER.debug("{} is no longer backed up.", canvasCode);
                     Main.ACTIVE_CANVAS_SESSIONS.remove(canvasCode);
                 }
                 preparedResults.close();

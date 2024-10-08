@@ -1,0 +1,130 @@
+.footer-container {
+    position: fixed;
+    bottom: -100px; /* Initially off-screen */
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #f5f5f5;
+    z-index: 4;
+    opacity: 0; /* Initially invisible */
+    transition: bottom 0.5s ease-in-out, opacity 0.5s ease-in-out; /* Smooth transition */
+    pointer-events: none;
+}
+
+.footer-container.active {
+    bottom: 0; /* Slide it up */
+    opacity: 1; /* Make it visible */
+    pointer-events: auto;
+}
+
+.footer-line {
+    height: 3px;
+    width: 100%;
+    background-color: #000000;
+    margin-bottom: 100px;
+}
+
+.container {
+    margin: 65px auto;
+    text-align: center;
+}
+
+.column {
+    align-self: center;
+    width: 50%;
+    text-align: center;
+}
+
+#colorscontent {
+    text-align: left;
+    max-width: 360px;
+
+}
+
+.colorswatches {
+    position: relative;
+    bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    gap: .2rem .2rem;;
+
+}
+
+.swatch {
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    border: 0.1em solid #000000;
+    transition: 0.05s;
+}
+
+.radio-button-label > input {
+    display: none;
+}
+
+input:checked + .swatch {
+    transform: scale(130%);
+    box-shadow: rgba(0, 0, 0, 0.53) 5px 5px 0 0 ;
+}
+
+#button-container {
+    position: absolute;
+    bottom: 10px; /* Change from -10px to 10px to move it above the bottom edge */
+    left: 50%;
+    transform: translate(-50%, 0); /* Align properly horizontally */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#pixel_confirmation {
+    background-color: #152226;
+    align-content: center;
+    width: 250px;
+    height: 40px;
+    border: 0.1em solid #000000;
+    transition: 0.05s;
+}
+
+#pixel_confirmation img {
+    width: 25px;
+    height: 25px;
+}
+
+#pixel_cancel{
+    background-color: transparent;
+    border: 0.1em solid #000000;
+    align-content: center;
+    width: 250px;
+    height: 40px;
+    transition: 0.05s;
+}
+
+#pixel_cancel img {
+    width: 25px;
+    height: 25px;
+    z-index: 2
+}
+
+#pixel_cancel:hover{
+    transform: scale(1.02);
+    background-color: #e5e5e5;
+}
+#pixel_cancel:active{
+    transform: scale(0.95);
+}
+
+#pixel_confirmation:hover{
+    transform: scale(1.02);
+    background-color: #802128;
+}
+#pixel_confirmation:active{
+    transform: scale(0.95);
+}

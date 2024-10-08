@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.florian.duocanvas.db.CanvasDatabase;
 import org.florian.duocanvas.json.requests.CanvasRequest;
 import org.florian.duocanvas.json.requests.DrawRequest;
+import org.florian.duocanvas.json.requests.ImageRequest;
 import org.florian.duocanvas.json.responses.SessionResponse;
 import org.florian.duocanvas.session.CanvasSession;
 
@@ -21,7 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 enum RequestType {
-    GENERATE_CANVAS, LOAD_CANVAS, DRAW_PIXEL
+    GENERATE_IMAGE, GENERATE_CANVAS, LOAD_CANVAS, DRAW_PIXEL
 }
 
 public class Main {
@@ -38,6 +39,7 @@ public class Main {
         REQUEST_HANDLERS.put(RequestType.GENERATE_CANVAS, SessionResponse.class);
         REQUEST_HANDLERS.put(RequestType.LOAD_CANVAS, CanvasRequest.class);
         REQUEST_HANDLERS.put(RequestType.DRAW_PIXEL, DrawRequest.class);
+        REQUEST_HANDLERS.put(RequestType.GENERATE_IMAGE, ImageRequest.class);
 
         if (!CanvasDatabase.initiateDatabase()) {
             return;
@@ -98,6 +100,12 @@ public class Main {
                         ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(
                                 ctx,
                                 OBJECT_MAPPER.treeToValue(jsonData, REQUEST_HANDLERS.get(RequestType.DRAW_PIXEL))
+                        );
+                        break;
+                    case "image":
+                        ACTIVE_CANVAS_SESSIONS.get(canvasCode).handlePacket(
+                                ctx,
+                                OBJECT_MAPPER.treeToValue(jsonData, REQUEST_HANDLERS.get(RequestType.GENERATE_IMAGE))
                         );
                         break;
                 }

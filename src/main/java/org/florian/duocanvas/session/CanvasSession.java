@@ -7,21 +7,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.websocket.WsContext;
 
 import io.javalin.websocket.WsMessageContext;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.florian.duocanvas.Main;
 import org.florian.duocanvas.canvas.CanvasPixel;
 import org.florian.duocanvas.json.requests.CanvasRequest;
 import org.florian.duocanvas.json.requests.DrawRequest;
+import org.florian.duocanvas.json.requests.ImageRequest;
 import org.florian.duocanvas.json.responses.CanvasResponse;
 import org.florian.duocanvas.json.responses.DrawResponse;
 import org.florian.duocanvas.json.responses.DrawUpdate;
+import org.florian.duocanvas.json.responses.ImageResponse;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,11 +65,13 @@ public class CanvasSession implements Serializable {
         this.participants.remove(participantUUID);
     }
 
-    public void handlePacket(WsMessageContext ctx, Object decodedJson) throws JsonProcessingException {
+    public void handlePacket(WsMessageContext ctx, Object decodedJson) throws IOException {
         if (decodedJson instanceof CanvasRequest) {
             handleCanvasRequest(ctx);
         } else if (decodedJson instanceof DrawRequest) {
             handleDrawRequest(ctx, (DrawRequest) decodedJson);
+        } else if (decodedJson instanceof ImageRequest) {
+            handleImageRequest(ctx);
         } else {
             LOGGER.debug(decodedJson.toString());
         }
@@ -83,9 +96,7 @@ public class CanvasSession implements Serializable {
 
             LOGGER.debug("Loaded Canvas for: {}", ctx.sessionId());
 
-            generateCanvasImage(); // TODO: For testing.
-
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             LOGGER.debug("Canvas request failed", e);
             ctx.send(OBJECT_MAPPER.writeValueAsString(false));
         }
@@ -115,11 +126,17 @@ public class CanvasSession implements Serializable {
         }
     }
 
-    private void cancelDrawResponse(WsMessageContext ctx) throws JsonProcessingException {
-        ctx.send(OBJECT_MAPPER.writeValueAsString(new DrawResponse("drawResponse", false)));
+    private void handleImageRequest(WsMessageContext ctx) throws IOException {
+        try{
+            String base64Image = generateCanvasImage();
+            ctx.send(OBJECT_MAPPER.writeValueAsString(new ImageResponse("imageResponse", base64Image)));
+        }catch (Exception e){
+            LOGGER.debug(e);
+        }
     }
 
-    private void generateCanvasImage() {
+
+    private String generateCanvasImage() throws IOException {
         BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
 
@@ -136,11 +153,18 @@ public class CanvasSession implements Serializable {
                 g.drawRect(i, j, 2, 2);
             }
         }
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frame.setSize(1000, 1000);
-        JLabel label = new JLabel(new ImageIcon(image));
-        frame.add(label);
-        frame.setVisible(true);
+
+        File imageFile= new File(canvasCode + ".png");
+        ImageIO.write(image, "png", imageFile);
+        byte[] fileContent = FileUtils.readFileToByteArray(imageFile);
+
+        boolean isDeleted = imageFile.getAbsoluteFile().delete();
+        LOGGER.debug("Successfully cleaned up?: {}", isDeleted);
+
+        return Base64.getEncoder().encodeToString(fileContent);
+    }
+
+    private void cancelDrawResponse(WsMessageContext ctx) throws JsonProcessingException {
+        ctx.send(OBJECT_MAPPER.writeValueAsString(new DrawResponse("drawResponse", false)));
     }
 }
